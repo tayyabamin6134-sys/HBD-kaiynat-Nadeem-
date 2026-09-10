@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Birthday Magic World ✨ - Happy Birthday Kaiynat Nadeem</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: #0f0c29;
+            background: linear-gradient(135deg, #1f1c2c, #928dab);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        /* Canvas for confetti and explosions */
+        #main-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* Screen Wrapper */
+        .screen {
+            display: none;
+            width: 90%;
+            max-width: 550px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 25px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            animation: fadeIn 0.6s ease-in-out;
+            position: relative;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        h1, h2 {
+            font-family: 'Dancing Script', cursive;
+            color: #ff758c;
+            margin-bottom: 15px;
+        }
+
+        h1 { font-size: 2.8rem; }
+        h2 { font-size: 2.2rem; }
+
+        p {
+            font-size: 0.95rem;
+            color: #e0e0e0;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        /* Prepared By Footer Styling */
+        .prepared-by {
+            margin-top: 25px;
+            padding-top: 15px;
+            border-top: 1px dashed rgba(255, 255, 255, 0.2);
+            font-size: 0.9rem;
+            color: #ffd1dc;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        /* Inputs & Buttons */
+        input[type="password"], input[type="text"] {
+            width: 80%;
+            padding: 12px;
+            border-radius: 20px;
+            border: none;
+            outline: none;
+            text-align: center;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #ff758c, #ff7eb3);
+            border: none;
+            color: white;
+            padding: 12px 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 25px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 117, 140, 0.4);
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(255, 117, 140, 0.6);
+        }
+
+        /* Single Image Display Frame */
+        .img-box {
+            width: 180px;
+            height: 180px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            border: 4px solid #ff758c;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(255, 117, 140, 0.5);
+        }
+
+        .img-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Photo Gallery Grid */
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+            max-height: 280px;
+            overflow-y: auto;
+            padding: 5px;
+        }
+
+        .grid-card {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 6px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .grid-card:hover {
+            transform: scale(1.05);
+        }
+
+        .grid-card img {
+            width: 100%;
+            height: 110px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        /* Screen 1: Incorrect Sticker Modal */
+        .error-sticker {
+            display: none;
+            margin-top: 15px;
+            background: rgba(255,0,0,0.2);
+            padding: 10px;
+            border-radius: 15px;
+            animation: shake 0.4s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        /* Screen 2: Emoji Pop */
+        .emoji-grid {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+
+        .emoji-btn {
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .emoji-btn:hover { transform: scale(1.3); }
+
+        /* Screen 3: Balloons */
+        .balloon-container {
+            display: flex;
+            justify-content: space-around;
+            margin: 30px 0;
+        }
+
+        .balloon {
+            font-size: 3rem;
+            cursor: pointer;
+            animation: float 2s infinite ease-in-out alternate;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-15px); }
+        }
+
+        /* Screen 6: Cake & Candles */
+        .cake-container {
+            position: relative;
+            margin: 20px auto;
+            width: 200px;
+        }
+
+        .candles {
+            display: flex;
+            justify-content: space-around;
+            width: 120px;
+            margin: 0 auto -10px;
+        }
+
+        .candle {
+            width: 12px;
+            height: 35px;
+            background: linear-gradient(to bottom, #fff, #ffd1dc);
+            border-radius: 5px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .flame {
+            width: 10px;
+            height: 12px;
+            background: orange;
+            border-radius: 50% 50% 20% 20%;
+            position: absolute;
+            top: -12px;
+            left: 1px;
+            box-shadow: 0 0 10px orange;
+            animation: flicker 0.3s infinite alternate;
+        }
+
+        .flame.off { display: none; }
+
+        @keyframes flicker {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.2); }
+        }
+
+        .cake {
+            width: 180px;
+            height: 90px;
+            background: #ffb6c1;
+            margin: 0 auto;
+            border-radius: 15px 15px 5px 5px;
+            position: relative;
+            border-bottom: 8px solid #ff69b4;
+            cursor: pointer;
+        }
+
+        .cut-line {
+            position: absolute;
+            width: 2px;
+            height: 100%;
+            background: white;
+            left: 50%;
+            top: 0;
+            display: none;
+        }
+
+        /* Screen 7: Reasons List */
+        .reasons-list {
+            max-height: 250px;
+            overflow-y: auto;
+            text-align: left;
+            padding: 10px;
+        }
+
+        .reason-item {
+            background: rgba(255,255,255,0.1);
+            padding: 10px 15px;
+            margin-bottom: 8px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+        }
+
+        /* Screen 8: Nested Hearts */
+        .nested-heart {
+            display: inline-block;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        /* Emoji Overlay for Explosion */
+        .emoji-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 10000;
+        }
+
+        .floating-emoji {
+            position: absolute;
+            font-size: 2.5rem;
+            animation: explode 2.5s forwards ease-out;
+        }
+
+        @keyframes explode {
+            0% { opacity: 1; transform: translate(0, 0) scale(0.5); }
+            100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(1.8); }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="main-canvas"></canvas>
+
+    <!-- SCREEN 1: Password Lock -->
+    <div class="screen active" id="screen1">
+        <h1>Welcome Pookie! 🔒</h1>
+        <p>Enter your secret nickname to unlock your birthday surprise!</p>
+        <input type="password" id="passInput" placeholder="Enter nickname...">
+        <br>
+        <button class="btn" onclick="checkPassword()">Unlock Magic ✨</button>
+        <div class="error-sticker" id="errorSticker">
+            <span style="font-size: 2rem;">🐱❌</span>
+            <p style="margin: 0; color: #ff4d4d; font-weight: bold;">Oopsie! Wrong code, try again Pookie!</p>
+        </div>
+        <div class="prepared-by">Prepared with ❤️ by Tyyaba Amin ✨💖</div>
+    </div>
+
+    <!-- SCREEN 2: Welcome Page & Hero Pic Reveal -->
+    <div class="screen" id="screen2">
+        <h1>Pop an Emoji! 🎉</h1>
+        <p>Tap any emoji to reveal Kaiynat Nadeem's special welcome picture!</p>
+        <div class="emoji-grid">
+            <span class="emoji-btn" onclick="revealHero()">🎁</span>
+            <span class="emoji-btn" onclick="revealHero()">⭐</span>
+            <span class="emoji-btn" onclick="revealHero()">🎈</span>
+        </div>
+        <div class="img-box" id="heroBox" style="display:none;">
+            <img src="bestie-hero.jpg" alt="Kaiynat Nadeem">
+        </div>
+        <button class="btn" id="next2" style="display:none;" onclick="nextScreen(3)">Let's Continue ➡️</button>
+        <div class="prepared-by">Prepared with ❤️ by Tyyaba Amin ✨💖</div>
+    </div>
+
+    <!-- SCREEN 3: 4 Balloons Pop -->
+    <div class="screen" id="screen3">
+        <h1>Pop the Balloons! 🎈</h1>
+        <p>Pop all 4 balloons for Kaiynat's confetti explosion!</p>
+        <div class="balloon-container">
+            <span class="balloon" id="b1" onclick="popBalloon('b1')">🎈</span>
+            <span class="balloon" id="b2" onclick="popBalloon('b2')">🎈</span>
+            <span class="balloon" id="b3" onclick="popBalloon('b3')">🎈</span>
+            <span class="balloon" id="b4" onclick="popBalloon('b4')">🎈</span>
+        </div>
+        <button class="btn" id="next3" style="display:none;" onclick="nextScreen(4)">Next Surprise ➡️</button>
+        <div class="prepared-by">Prepared with ❤️ by Tyyaba Amin ✨💖</div>
+    </div>
+
+    <!-- SCREEN 4: Together Moment -->
+    <div class="screen" id="screen4">
+        <h1>Together Moments 💖</h1>
+        <p>To the best memories we've created together!</p>
+        <div class="img-box" style="width: 220px; height: 220px; border-radius: 20px;">
+            <img src="together.jpg" alt="Together Moment">
+        </div>
+        <button class="btn" onclick="nextScreen(5)">More Memories 📸</button>
+        <div class="prepared-by">Prepared with ❤️ by Tyyaba Amin ✨💖</div>
+    </div>
+
+    <!-- SCREEN 5: Memories Gallery Grid -->
+    <div class="screen" id="screen5">
+        <h1>Memories Gallery ✨</h1>
+        <p>A collection of Kaiynat Nadeem's most adorable pictures!</p>
+        
+        <div class="photo-grid">
+            <div class="grid-card"><img src="memory1.jpg" alt="Memory 1"></div>
+            <div class="grid-card"><img src="memory2.jpg" alt="Memory 2"></div>
+            <div class="grid-card"><img src="memory3.jpg" alt="Memory 3"></div>
+            <div class="grid-card"><img src="memory4.jpg" alt="Memory 4"></div>
+        </div>
+
+        <button class="btn" onclick="nextScreen(6)">Time for Cake! 🎂</button>
+        <div class="prepared-by">Prepared with ❤️ by Tyyaba Amin ✨💖</div>
+    </div>
+
+    <!-- SCREEN 6: Cake Cutting & Candle Blowing -->
+    <div class="screen" id="screen6">
+        <h1>Make a Wish, Kaiynat! 🎂</h1>
+        <p id="cakeInstructions">Tap each candle to blow it out!</p>
+        <div class="cake-container">
+            <div class="candles">
+                <div class="candle" onclick="blowCandle(1)"><div class="flame" id="flame1"></div></div>
+                <div class="candle" onclick="blowCandle(2)"><div class="flame" id="flame2"></div></div>
+                <div class="candle" onclick="blowCandle(3)"><div class="flame" id="flame3"></div></div>
+                <div class="candle" onclick="blowCandle(4)"><div class="flame" id="flame4"></div></div>
+            </div>
+            <div class="cake" id="cake" onclick="cutCake()">
+                <div class="cut-line" id="cutLine"></div>
+            </div>
+        </div>
+        <button class="btn" id="next6" style="display:none;" onclick="nextScreen(7)">See Why You're Special ❤️</button>
+        <div class="prepared-by">Prepared with ❤️ by Tyyaba Amin ✨💖</div>
+    </div>
+
+    <!-- SCREEN 7: 10 Reasons Why I Love You -->
+    <div class="screen" id="screen7">
+        <h1>10 Reasons I Love You, Kaiynat 💕</h1>
+        <div class="reasons-list">
+            <div class="reason-item">1. You have the sweetest heart in the world.</div>
+            <div class="reason-item">2. You always listen to me no matter what.</div>
+            <div class="reason-item">3. Your smile brightens up my darkest days.</div>
+            <div class="reason-item">4. You are my true partner in crime.</div>
+            <div class="reason-item">5. You keep all my secrets safe.</div>
+            <div class="reason-item">6. You make every boring moment fun.</div>
+            <div class="reason-item">7. You always believe in me.</div>
+            <div class="reason-item">8. You give the best advice.</div>
+            <div class="reason-item">9. Life is simply better with you in it.</div>
+            <div class="reason-item">10. You are my favorite person forever!</div>
+        </div>
+        <button class="btn" style="margin-top: 15px;" onclick="nextScreen(8)">Open Magic Gift 🎁</button>
+        <div class="prepared-by">Prepared with ❤️ by Tyyaba Amin ✨💖</div>
+    </div>
+
+    <!-- SCREEN 8: Magic Nested Hearts -->
+    <div class="screen" id="screen8">
+        <h1>Magic Mystery Gift 💖</h1>
+        <p>Keep tapping the heart to unwrap!</p>
+        <div id="heartBox">
+            <span class="nested-heart" style="font-size: 6rem;" onclick="nestedHeartClick(1)">💖</span>
+        </div>
+        <div class="prepared-by">Prepared with ❤️ by Tyyaba Amin ✨💖</div>
+    </div>
+
+    <!-- SCREEN 9: Explosive Hugs & Kisses -->
+    <div class="screen" id="screen9">
+        <h1>Sending Endless Love to Kaiynat! 🫂💋</h1>
+        <p>Hugs & Kisses Explosion Activated!</p>
+        <button class="btn" style="margin-top: 30px;" onclick="nextScreen(10)">Read Birthday Note 💌</button>
+        <div class="prepared-by">Prepared with ❤️ by Tyyaba Amin ✨💖</div>
+    </div>
+
+    <!-- SCREEN 10: Final Birthday Wish Note -->
+    <div class="screen" id="screen10">
+        <h1>Happy Birthday Kaiynat Nadeem! 🎉✨</h1>
+        <p style="text-align: justify; font-size: 0.95rem;">
+            Dearest Kaiynat Nadeem,<br><br>
+            On this special day, I just want to remind you how deeply loved and appreciated you are. Thank you for bringing so much laughter, warmth, and joy into my life. May your year ahead be filled with endless success, beautiful dreams, and boundless happiness! Stay as amazing as you are.<br><br>
+            Forever & Always 💕
+        </p>
+        <button class="btn" onclick="triggerConfetti()">Celebrate Again! 🎊</button>
+        <div class="prepared-by">Prepared with ❤️ by Tyyaba Amin ✨💖</div>
+    </div>
+
+    <div class="emoji-overlay" id="emojiOverlay"></div>
+
+    <script>
+        // Password Check Logic
+        function checkPassword() {
+            const val = document.getElementById('passInput').value.trim().toLowerCase();
+            if (val === 'pookie') {
+                nextScreen(2);
+            } else {
+                document.getElementById('errorSticker').style.display = 'block';
+            }
+        }
+
+        // Screen Switcher Helper
+        function nextScreen(screenNum) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('screen' + screenNum).classList.add('active');
+            if (screenNum === 10) triggerConfetti();
+        }
+
+        // Screen 2 Logic
+        function revealHero() {
+            document.getElementById('heroBox').style.display = 'block';
+            document.getElementById('next2').style.display = 'inline-block';
+            triggerConfetti();
+        }
+
+        // Screen 3 Logic (Balloons)
+        let popped = 0;
+        function popBalloon(id) {
+            const b = document.getElementById(id);
+            if (b.style.visibility !== 'hidden') {
+                b.style.visibility = 'hidden';
+                popped++;
+                confetti({ particleCount: 30, spread: 60, origin: { y: 0.5 } });
+                if (popped === 4) {
+                    document.getElementById('next3').style.display = 'inline-block';
+                    triggerConfetti();
+                }
+            }
+        }
+
+        // Screen 6 Logic (Cake & Candles)
+        let blown = 0;
+        function blowCandle(num) {
+            const flame = document.getElementById('flame' + num);
+            if (!flame.classList.contains('off')) {
+                flame.classList.add('off');
+                blown++;
+                if (blown === 4) {
+                    document.getElementById('cakeInstructions').innerText = "Now tap the cake to cut it!";
+                }
+            }
+        }
+
+        function cutCake() {
+            if (blown === 4) {
+                document.getElementById('cutLine').style.display = 'block';
+                triggerConfetti();
+                document.getElementById('next6').style.display = 'inline-block';
+                document.getElementById('cakeInstructions').innerText = "Yay! Cake is cut! 🎉";
+            }
+        }
+
+        // Screen 8 & 9 Logic (Nested Hearts & Explosion)
+        function nestedHeartClick(level) {
+            const box = document.getElementById('heartBox');
+            if (level === 1) {
+                box.innerHTML = '<span class="nested-heart" style="font-size: 4.5rem;" onclick="nestedHeartClick(2)">💕</span>';
+            } else if (level === 2) {
+                box.innerHTML = '<span class="nested-heart" style="font-size: 3rem;" onclick="nestedHeartClick(3)">💗</span>';
+            } else if (level === 3) {
+                box.innerHTML = '<span class="nested-heart" style="font-size: 1.8rem;" onclick="nestedHeartClick(4)">💓</span>';
+            } else if (level === 4) {
+                explodeEmojis();
+                nextScreen(9);
+            }
+        }
+
+        function explodeEmojis() {
+            const container = document.getElementById('emojiOverlay');
+            const emojis = ['🫂', '💋', '💖', '🥰', '😘', '✨'];
+            for (let i = 0; i < 60; i++) {
+                const el = document.createElement('div');
+                el.className = 'floating-emoji';
+                el.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+                el.style.left = '50vw';
+                el.style.top = '50vh';
+                
+                const tx = (Math.random() - 0.5) * 800 + 'px';
+                const ty = (Math.random() - 0.5) * 800 + 'px';
+                el.style.setProperty('--tx', tx);
+                el.style.setProperty('--ty', ty);
+                
+                container.appendChild(el);
+                setTimeout(() => el.remove(), 2500);
+            }
+        }
+
+        // Confetti Helper
+        function triggerConfetti() {
+            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+        }
+    </script>
+</body>
+</html>
